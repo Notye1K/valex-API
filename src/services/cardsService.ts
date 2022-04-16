@@ -4,8 +4,9 @@ import bcrypt from 'bcrypt'
 import * as companyRepository from '../repositories/companyRepository.js'
 import * as employeeRepository from '../repositories/employeeRepository.js'
 import * as cardRepository from '../repositories/cardRepository.js'
-import * as paymentRepository from '../repositories/paymentRepository.js'
 import * as rechargeRepository from '../repositories/rechargeRepository.js'
+import { validateCardId, getBalance } from './validateService.js'
+import { validateDate, formatDate } from '../utils/validateUtils.js'
 
 export async function createCard(apiKey: string, body: any) {
 
@@ -46,13 +47,7 @@ export async function getInfos(id: number) {
 
     await validateCardId(id)
 
-    const transactions = await paymentRepository.findByCardId(id)
-    const recharges = await rechargeRepository.findByCardId(id)
-
-    const rechargesAmount = recharges.reduce((acc, current) => acc + current.amount, 0);
-    const transactionsAmount = transactions.reduce((acc, current) => acc + current.amount, 0);
-
-    const balance = rechargesAmount - transactionsAmount
+    const { balance, transactions, recharges } = await getBalance(id);
 
     return {
         balance,
@@ -81,19 +76,6 @@ async function validateCard(id: number, cvv: string) {
     validateActivation(cardResult.password);
 }
 
-function validateDate(expirationDate: string){
-    const date = formatDate()
-    const year = date.slice(-2)
-    const month = date.slice(0,2)
-
-    const expirationYear = expirationDate.slice(-2)
-    const expirationMonth = expirationDate.slice(0, 2)
-
-    if (year > expirationYear || (year === expirationYear && month > expirationMonth)){
-        throw { type: 'user', message: 'card has expired', status: 406 };
-    }
-}
-
 function validateActivation(password: string) {
     if (password) {
         throw { type: 'user', message: 'card already active', status: 409 };
@@ -105,14 +87,6 @@ function validateCVV(cvv: string, securityCode: string) {
     if (!isCorrectCVV) {
         throw { type: 'user', message: 'incorrect cvv', status: 401 };
     }
-}
-
-async function validateCardId(id: number) {
-    const cardResult = await cardRepository.findById(id);
-    if (!cardResult) {
-        throw { type: 'user', message: 'card not found', status: 404 };
-    }
-    return cardResult;
 }
 
 function validatePassword(password: string) {
@@ -131,15 +105,6 @@ function createCVV(){
 function newCardConfig(card: any) {
     card.isVirtual = false
     card.isBlocked = false
-}
-
-function formatDate(){
-    const date = new Date();
-
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear()+5
-
-    return month + '/' + year.toString().slice(-2);
 }
 
 function formatName(fullName: string) {
