@@ -28,9 +28,73 @@ export async function createCard(apiKey: string, body: any) {
     cardRepository.insert(card)
 }
 
+export async function activateCard(id: number, body: any) {
+
+    validatePassword(body.password);
+
+    await validateCard(id, body.cvv);
+
+    const password = bcrypt.hashSync(body.password, 8)
+
+    await cardRepository.update(id, {password})
+
+}
+
+
+async function validateCard(id: number, cvv: string) {
+    const cardResult = await validateCardId(id);
+
+    validateCVV(cvv, cardResult.securityCode);
+
+    validateDate(cardResult.expirationDate)
+
+    validateActivation(cardResult.password);
+}
+
+function validateDate(expirationDate: string){
+    const date = formatDate()
+    const year = date.slice(-2)
+    const month = date.slice(0,2)
+
+    const expirationYear = expirationDate.slice(-2)
+    const expirationMonth = expirationDate.slice(0, 2)
+
+    if (year > expirationYear || (year === expirationYear && month > expirationMonth)){
+        throw { type: 'user', message: 'card has expired', status: 406 };
+    }
+}
+
+function validateActivation(password: string) {
+    if (password) {
+        throw { type: 'user', message: 'card already active', status: 409 };
+    }
+}
+
+function validateCVV(cvv: string, securityCode: string) {
+    const isCorrectCVV = bcrypt.compareSync(cvv, securityCode);
+    if (!isCorrectCVV) {
+        throw { type: 'user', message: 'incorrect cvv', status: 401 };
+    }
+}
+
+async function validateCardId(id: number) {
+    const cardResult = await cardRepository.findById(id);
+    if (!cardResult) {
+        throw { type: 'user', message: 'card not found', status: 404 };
+    }
+    return cardResult;
+}
+
+function validatePassword(password: string) {
+    const regex = /^[0-9]{4}$/;
+    if (!regex.test(password)) {
+        throw { type: 'user', message: 'the password must be a four-digit number', status: 406 };
+    }
+}
 
 function createCVV(){
     const cvv = faker.finance.creditCardCVV()
+    console.log(cvv);
     return bcrypt.hashSync(cvv, 8)
 }
 
@@ -40,12 +104,12 @@ function newCardConfig(card: any) {
 }
 
 function formatDate(){
-    const data = new Date();
+    const date = new Date();
 
-    const mes = String(data.getMonth() + 1).padStart(2, '0');
-    const ano = data.getFullYear()+5
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear()+5
 
-    return mes + '/' + ano.toString().slice(-2);
+    return month + '/' + year.toString().slice(-2);
 }
 
 function formatName(fullName: string) {
