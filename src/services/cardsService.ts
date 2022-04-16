@@ -61,6 +61,15 @@ export async function getInfos(id: number) {
     }
 }
 
+export async function recharge(id: number, amount: number, apiKey: string) {
+    await validateApiKey(apiKey)
+
+    const cardResult = await validateCardId(id)
+    validateDate(cardResult.expirationDate)
+
+    await rechargeRepository.insert({cardId: id, amount})
+}
+
 
 async function validateCard(id: number, cvv: string) {
     const cardResult = await validateCardId(id);

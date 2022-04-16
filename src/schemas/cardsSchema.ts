@@ -10,7 +10,12 @@ const cardActivateSchema = joi.object({
     password: joi.string().trim().required()
 })
 
+const cardRecharge = joi.object({
+    amount: joi.number().greater(0).required()
+})
+
 export {
     createCardSchema,
-    cardActivateSchema
+    cardActivateSchema,
+    cardRecharge
 }

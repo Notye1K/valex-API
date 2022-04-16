@@ -8,6 +8,7 @@ const cardsRouter = Router();
 
 cardsRouter.post('/cards', validateSchema(cardsSchema.createCardSchema), cardsController.createCard)
 cardsRouter.put('/cards/:cardId/activate', validateSchema(cardsSchema.cardActivateSchema), cardsController.activateCard)
+cardsRouter.post('/cards/:cardId/recharge', validateSchema(cardsSchema.cardRecharge), cardsController.recharge)
 cardsRouter.get('/cards/:cardId', cardsController.getInfos)
 
 export default cardsRouter
