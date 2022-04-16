@@ -4,6 +4,8 @@ import bcrypt from 'bcrypt'
 import * as companyRepository from '../repositories/companyRepository.js'
 import * as employeeRepository from '../repositories/employeeRepository.js'
 import * as cardRepository from '../repositories/cardRepository.js'
+import * as paymentRepository from '../repositories/paymentRepository.js'
+import * as rechargeRepository from '../repositories/rechargeRepository.js'
 
 export async function createCard(apiKey: string, body: any) {
 
@@ -38,6 +40,25 @@ export async function activateCard(id: number, body: any) {
 
     await cardRepository.update(id, {password})
 
+}
+
+export async function getInfos(id: number) {
+
+    await validateCardId(id)
+
+    const transactions = await paymentRepository.findByCardId(id)
+    const recharges = await rechargeRepository.findByCardId(id)
+
+    const rechargesAmount = recharges.reduce((acc, current) => acc + current.amount, 0);
+    const transactionsAmount = transactions.reduce((acc, current) => acc + current.amount, 0);
+
+    const balance = rechargesAmount - transactionsAmount
+
+    return {
+        balance,
+        transactions,
+        recharges
+    }
 }
 
 

@@ -19,6 +19,15 @@ export async function activateCard(req: Request, res: Response) {
     res.sendStatus(200)
 }
 
+export async function getInfos(req: Request, res: Response) {
+    const id = parseInt(req.params.cardId)
+    validateId(id);
+
+    const infos = await cardsService.getInfos(id)
+
+    res.send(infos)
+}
+
 
 function validateId(id: number) {
     if (id < 1 || isNaN(id)) {
