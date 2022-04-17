@@ -124,6 +124,6 @@ export async function remove(id: number) {
 }
 
 export async function findByNumber(number: string) {
-  const result = await connection.query('SELECT id FROM cards WHERE number=$1', [number])
+  const result = await connection.query<any, [string]>('SELECT id FROM cards WHERE number=$1', [number])
   return result.rows[0]
 }

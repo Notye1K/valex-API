@@ -1,9 +1,7 @@
-import bcrypt from 'bcrypt'
-
 import * as businessRepository from '../repositories/businessRepository.js'
 import * as paymentRepository from '../repositories/paymentRepository.js'
 import { validateCardId, getBalance } from './validateService.js'
-import { validateDate } from '../utils/validateUtils.js'
+import { validateDate, validatePassword } from '../utils/validateUtils.js'
 import { Card } from '../repositories/cardRepository.js'
 
 export async function postPurchase(body: any){
@@ -34,12 +32,5 @@ async function validateFunds(body: any) {
     const { balance } = await getBalance(body.cardId)
     if (balance < body.amount) {
         throw { type: 'user', message: 'Insufficient funds', status: 401 }
-    }
-}
-
-function validatePassword(cardPassword: string, password: string){
-    const isCorrectpassword = bcrypt.compareSync(password, cardPassword);
-    if (!isCorrectpassword) {
-        throw { type: 'user', message: 'incorrect password', status: 401 };
     }
 }

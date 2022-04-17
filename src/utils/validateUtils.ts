@@ -1,3 +1,5 @@
+import bcrypt from 'bcrypt'
+
 export function validateDate(expirationDate: string) {
     const date = formatDate()
     const year = date.slice(-2)
@@ -18,4 +20,17 @@ export function formatDate() {
     const year = date.getFullYear() + 5
 
     return month + '/' + year.toString().slice(-2);
+}
+
+export function validateBlock(isBlocked: boolean){
+    if (isBlocked) {
+        throw { type: 'user', message: 'card is blocked', status: 406 };
+    }
+}
+
+export function validatePassword(cardPassword: string, password: string) {
+    const isCorrectpassword = bcrypt.compareSync(password, cardPassword);
+    if (!isCorrectpassword) {
+        throw { type: 'user', message: 'incorrect password', status: 401 };
+    }
 }

@@ -6,7 +6,7 @@ import * as employeeRepository from '../repositories/employeeRepository.js'
 import * as cardRepository from '../repositories/cardRepository.js'
 import * as rechargeRepository from '../repositories/rechargeRepository.js'
 import { validateCardId, getBalance } from './validateService.js'
-import { validateDate, formatDate } from '../utils/validateUtils.js'
+import { validateDate, formatDate, validateBlock, validatePassword as checkPassword } from '../utils/validateUtils.js'
 
 export async function createCard(apiKey: string, body: any) {
 
@@ -63,6 +63,18 @@ export async function recharge(id: number, amount: number, apiKey: string) {
     validateDate(cardResult.expirationDate)
 
     await rechargeRepository.insert({cardId: id, amount})
+}
+
+export async function block(id: number, password: string){
+    const cardResult = await validateCardId(id)
+
+    validateDate(cardResult.expirationDate)
+
+    validateBlock(cardResult.isBlocked)
+
+    checkPassword(cardResult.password, password)
+
+    await cardRepository.update(id, {isBlocked: true})
 }
 
 

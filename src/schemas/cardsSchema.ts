@@ -14,8 +14,13 @@ const cardRecharge = joi.object({
     amount: joi.number().greater(0).required()
 })
 
+const cardBlock = joi.object({
+    password: joi.string().trim().required()
+})
+
 export {
     createCardSchema,
     cardActivateSchema,
-    cardRecharge
+    cardRecharge,
+    cardBlock
 }
