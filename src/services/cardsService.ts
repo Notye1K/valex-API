@@ -68,15 +68,35 @@ export async function recharge(id: number, amount: number, apiKey: string) {
 export async function block(id: number, password: string){
     const cardResult = await validateCardId(id)
 
-    validateDate(cardResult.expirationDate)
-
+    blockUnblockValidation(cardResult, password);
+    
     validateBlock(cardResult.isBlocked)
-
-    checkPassword(cardResult.password, password)
 
     await cardRepository.update(id, {isBlocked: true})
 }
 
+export async function unblock(id: number, password: string){
+    const cardResult = await validateCardId(id)
+
+    blockUnblockValidation(cardResult, password);
+    
+    validateUnblock(cardResult.isBlocked)
+
+    await cardRepository.update(id, { isBlocked: false })
+}
+
+
+function validateUnblock(isBlocked: boolean) {
+    if (!isBlocked) {
+        throw { type: 'user', message: 'card already unblocked', status: 406 };
+    }
+}
+
+function blockUnblockValidation(cardResult: cardRepository.Card, password: string) {
+    validateDate(cardResult.expirationDate);
+
+    checkPassword(cardResult.password, password);
+}
 
 async function validateCard(id: number, cvv: string) {
     const cardResult = await validateCardId(id);

@@ -50,6 +50,15 @@ export async function block(req: Request, res: Response) {
     res.sendStatus(200)
 }
 
+export async function unblock(req: Request, res: Response) {
+    const id = parseInt(req.params.cardId)
+    validateId(id);
+
+    await cardsService.unblock(id, req.body.password)
+
+    res.sendStatus(200)
+}
+
 
 function validateId(id: number) {
     if (id < 1 || isNaN(id)) {
