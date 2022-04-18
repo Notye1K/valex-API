@@ -6,7 +6,7 @@ import * as employeeRepository from '../repositories/employeeRepository.js'
 import * as cardRepository from '../repositories/cardRepository.js'
 import * as rechargeRepository from '../repositories/rechargeRepository.js'
 import { validateCardId, getBalance } from './validateService.js'
-import { validateDate, formatDate, validateBlock, validatePassword as checkPassword, validateCVV } from '../utils/validateUtils.js'
+import { validateDate, formatDate, validateBlock, validatePassword as checkPassword, validateCVV, validateIsVirtual } from '../utils/validateUtils.js'
 
 export async function createCard(apiKey: string, body: any) {
 
@@ -62,6 +62,8 @@ export async function recharge(id: number, amount: number, apiKey: string) {
     const cardResult = await validateCardId(id)
     validateDate(cardResult.expirationDate)
 
+    validateIsVirtual(cardResult.isVirtual)    
+
     await rechargeRepository.insert({cardId: id, amount})
 }
 
@@ -97,6 +99,24 @@ export async function createVirtual(id: number, password: string){
     cardRepository.insert(card)
 }
 
+export async function deleteVirtual(id: number, password: string) {
+    const cardResult = await validateCardId(id)
+
+    checkPassword(cardResult.password, password);
+
+    validateIsVirtualForDelete(cardResult.isVirtual);
+
+    await cardRepository.remove(id)
+}
+
+
+function validateIsVirtualForDelete (isVirtual: boolean){
+    if(!isVirtual) {
+        throw {
+            type: 'user', message: 'you can only delete virtual cards', status: 406
+        };
+    }
+}
 
 async function createObjForVirtual(cardResult: cardRepository.Card){
     const card = {...cardResult}
@@ -111,13 +131,6 @@ async function createObjForVirtual(cardResult: cardRepository.Card){
     return card
 }
 
-function validateIsVirtual(isVirtual: boolean) {
-    if (isVirtual) {
-        throw {
-            type: 'user', message: 'you need to link to a non-virtual card', status: 406
-        };
-    }
-}
 
 function validateUnblock(isBlocked: boolean) {
     if (!isBlocked) {

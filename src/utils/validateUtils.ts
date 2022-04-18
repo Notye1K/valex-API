@@ -43,6 +43,14 @@ export function validateCVV(cvv: string, securityCode: string) {
     }
 }
 
+export function validateIsVirtual(isVirtual: boolean) {
+    if (isVirtual) {
+        throw {
+            type: 'user', message: 'this is a virtual card', status: 406
+        };
+    }
+}
+
 
 function validateIsActive(password: string) {
     if (!password) {

@@ -68,6 +68,15 @@ export async function createVirtual(req: Request, res: Response) {
     res.sendStatus(201)
 }
 
+export async function deleteVirtual(req: Request, res: Response) {
+    const id = parseInt(req.params.cardId)
+    validateId(id);
+
+    await cardsService.deleteVirtual(id, req.body.password)
+
+    res.sendStatus(200)
+}
+
 
 function validateId(id: number) {
     if (id < 1 || isNaN(id)) {

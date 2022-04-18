@@ -12,6 +12,7 @@ cardsRouter.post('/cards/:cardId/recharge', validateSchema(cardsSchema.cardRecha
 cardsRouter.patch('/cards/:cardId/block', validateSchema(cardsSchema.cardBlock), cardsController.block)
 cardsRouter.patch('/cards/:cardId/unblock', validateSchema(cardsSchema.cardBlock), cardsController.unblock)
 cardsRouter.post('/cards/:cardId/virtual', validateSchema(cardsSchema.cardBlock), cardsController.createVirtual)
+cardsRouter.delete('/cards/:cardId/virtual', validateSchema(cardsSchema.cardBlock), cardsController.deleteVirtual)
 cardsRouter.get('/cards/:cardId', cardsController.getInfos)
 
 export default cardsRouter

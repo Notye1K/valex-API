@@ -2,13 +2,15 @@ import * as businessRepository from '../repositories/businessRepository.js'
 import * as paymentRepository from '../repositories/paymentRepository.js'
 import * as cardRepository from '../repositories/cardRepository.js'
 import { validateCardId, getBalance } from './validateService.js'
-import { validateBlock, validateCVV, validateDate, validatePassword } from '../utils/validateUtils.js'
+import { validateBlock, validateCVV, validateDate, validateIsVirtual, validatePassword } from '../utils/validateUtils.js'
 import { Card } from '../repositories/cardRepository.js'
 
 export async function postPurchase(body: any){
     const cardResult = await validateCardId(body.cardId)
 
     validatePassword(cardResult.password, body.password)
+
+    validateIsVirtual(cardResult.isVirtual)
     
     await validatePurchase(cardResult, body)
 
@@ -16,9 +18,13 @@ export async function postPurchase(body: any){
 }
 
 export async function postOnlinePurchase(body: any){
-    const cardResult = await validateCard(body)
+    let cardResult = await validateCard(body)
 
     validateCVV(body.cvv, cardResult.securityCode)
+
+    if (cardResult.isVirtual) {
+        cardResult = await validateCardId(cardResult.originalCardId)
+    }
 
     await validatePurchase(cardResult, body)
 
