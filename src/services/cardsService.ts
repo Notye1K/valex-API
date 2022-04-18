@@ -85,6 +85,39 @@ export async function unblock(id: number, password: string){
     await cardRepository.update(id, { isBlocked: false })
 }
 
+export async function createVirtual(id: number, password: string){
+    const cardResult = await validateCardId(id)
+
+    checkPassword(cardResult.password, password);
+
+    validateIsVirtual(cardResult.isVirtual);
+
+    const card = await createObjForVirtual(cardResult)
+
+    cardRepository.insert(card)
+}
+
+
+async function createObjForVirtual(cardResult: cardRepository.Card){
+    const card = {...cardResult}
+    card.number = await createCardNumber()
+    card.expirationDate = formatDate()
+    card.isBlocked = false
+    card.isVirtual = true
+    card.originalCardId = cardResult.id
+    delete card.id
+    card.securityCode = createCVV()
+
+    return card
+}
+
+function validateIsVirtual(isVirtual: boolean) {
+    if (isVirtual) {
+        throw {
+            type: 'user', message: 'you need to link to a non-virtual card', status: 406
+        };
+    }
+}
 
 function validateUnblock(isBlocked: boolean) {
     if (!isBlocked) {

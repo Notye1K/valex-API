@@ -14,6 +14,10 @@ export async function getBalance(id: number) {
     const transactions = await paymentRepository.findByCardId(id);
     const recharges = await rechargeRepository.findByCardId(id);
 
+    if (!recharges) {
+        throw { type: 'user', message: 'Insufficient funds', status: 401 }
+    }
+
     const rechargesAmount = recharges.reduce((acc, current) => acc + current.amount, 0);
     const transactionsAmount = transactions.reduce((acc, current) => acc + current.amount, 0);
 

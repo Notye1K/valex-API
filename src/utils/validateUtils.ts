@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt'
 
 export function validateDate(expirationDate: string) {
     const date = formatDate()
-    const year = date.slice(-2)
+    const year = (parseInt(date.slice(-2))-5).toString()
     const month = date.slice(0, 2)
 
     const expirationYear = expirationDate.slice(-2)
@@ -29,6 +29,7 @@ export function validateBlock(isBlocked: boolean){
 }
 
 export function validatePassword(cardPassword: string, password: string) {
+    validateIsActive(cardPassword)
     const isCorrectpassword = bcrypt.compareSync(password, cardPassword);
     if (!isCorrectpassword) {
         throw { type: 'user', message: 'incorrect password', status: 401 };
@@ -39,5 +40,12 @@ export function validateCVV(cvv: string, securityCode: string) {
     const isCorrectCVV = bcrypt.compareSync(cvv, securityCode);
     if (!isCorrectCVV) {
         throw { type: 'user', message: 'incorrect cvv', status: 401 };
+    }
+}
+
+
+function validateIsActive(password: string) {
+    if (!password) {
+        throw { type: 'user', message: 'card inactive', status: 406 };
     }
 }
