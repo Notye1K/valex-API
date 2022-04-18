@@ -1,8 +1,8 @@
-import { Request, Response } from "express";
+import { Request, Response } from 'express'
 
 import * as cardsService from '../services/cardsService.js'
 
-export async function createCard(req: Request, res: Response){
+export async function createCard(req: Request, res: Response) {
     const apiKey = req.headers['x-api-key']?.toString()
     validateAPIkey(apiKey)
 
@@ -13,7 +13,7 @@ export async function createCard(req: Request, res: Response){
 
 export async function activateCard(req: Request, res: Response) {
     const id = parseInt(req.params.cardId)
-    validateId(id);
+    validateId(id)
 
     await cardsService.activateCard(id, req.body)
 
@@ -22,7 +22,7 @@ export async function activateCard(req: Request, res: Response) {
 
 export async function getInfos(req: Request, res: Response) {
     const id = parseInt(req.params.cardId)
-    validateId(id);
+    validateId(id)
 
     const infos = await cardsService.getInfos(id)
 
@@ -34,7 +34,7 @@ export async function recharge(req: Request, res: Response) {
     validateAPIkey(apiKey)
 
     const id = parseInt(req.params.cardId)
-    validateId(id);
+    validateId(id)
 
     await cardsService.recharge(id, req.body.amount, apiKey)
 
@@ -43,7 +43,7 @@ export async function recharge(req: Request, res: Response) {
 
 export async function block(req: Request, res: Response) {
     const id = parseInt(req.params.cardId)
-    validateId(id);
+    validateId(id)
 
     await cardsService.block(id, req.body.password)
 
@@ -52,7 +52,7 @@ export async function block(req: Request, res: Response) {
 
 export async function unblock(req: Request, res: Response) {
     const id = parseInt(req.params.cardId)
-    validateId(id);
+    validateId(id)
 
     await cardsService.unblock(id, req.body.password)
 
@@ -61,7 +61,7 @@ export async function unblock(req: Request, res: Response) {
 
 export async function createVirtual(req: Request, res: Response) {
     const id = parseInt(req.params.cardId)
-    validateId(id);
+    validateId(id)
 
     await cardsService.createVirtual(id, req.body.password)
 
@@ -70,7 +70,7 @@ export async function createVirtual(req: Request, res: Response) {
 
 export async function deleteVirtual(req: Request, res: Response) {
     const id = parseInt(req.params.cardId)
-    validateId(id);
+    validateId(id)
 
     await cardsService.deleteVirtual(id, req.body.password)
 
@@ -80,12 +80,12 @@ export async function deleteVirtual(req: Request, res: Response) {
 
 function validateId(id: number) {
     if (id < 1 || isNaN(id)) {
-        throw { type: 'user', message: 'invalid id', status: 422 };
+        throw { type: 'user', message: 'invalid id', status: 422 }
     }
 }
 
 function validateAPIkey(apiKey: string) {
     if (!apiKey) {
-        throw { type: 'user', message: 'missing API key', status: 401 };
+        throw { type: 'user', message: 'missing API key', status: 401 }
     }
 }

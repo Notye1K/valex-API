@@ -2,22 +2,28 @@ import * as businessRepository from '../repositories/businessRepository.js'
 import * as paymentRepository from '../repositories/paymentRepository.js'
 import * as cardRepository from '../repositories/cardRepository.js'
 import { validateCardId, getBalance } from './validateService.js'
-import { validateBlock, validateCVV, validateDate, validateIsVirtual, validatePassword } from '../utils/validateUtils.js'
+import {
+    validateBlock,
+    validateCVV,
+    validateDate,
+    validateIsVirtual,
+    validatePassword,
+} from '../utils/validateUtils.js'
 import { Card } from '../repositories/cardRepository.js'
 
-export async function postPurchase(body: any){
+export async function postPurchase(body: any) {
     const cardResult = await validateCardId(body.cardId)
 
     validatePassword(cardResult.password, body.password)
 
     validateIsVirtual(cardResult.isVirtual)
-    
+
     await validatePurchase(cardResult, body)
 
     await paymentRepository.insert(body)
 }
 
-export async function postOnlinePurchase(body: any){
+export async function postOnlinePurchase(body: any) {
     let cardResult = await validateCard(body)
 
     validateCVV(body.cvv, cardResult.securityCode)
@@ -36,7 +42,7 @@ async function onlinePayment(cardId: number, body: any) {
     const paymentObject = {
         cardId,
         businessId: body.businessId,
-        amount: body.amount
+        amount: body.amount,
     }
     await paymentRepository.insert(paymentObject)
 }
@@ -52,7 +58,11 @@ async function validatePurchase(cardResult: cardRepository.Card, body: any) {
 }
 
 async function validateCard(body: any) {
-    const cardResult = await cardRepository.findByCardDetails(body.number, body.name.toUpperCase(), body.expirationDate)
+    const cardResult = await cardRepository.findByCardDetails(
+        body.number,
+        body.name.toUpperCase(),
+        body.expirationDate
+    )
     if (!cardResult) {
         throw { type: 'user', message: 'card not found', status: 404 }
     }
@@ -61,9 +71,11 @@ async function validateCard(body: any) {
 
 async function validateBusiness(businessId: number, cardResult: Card) {
     const business = await businessRepository.findById(businessId)
-    if (!business || (business.type !== cardResult.type)) {
+    if (!business || business.type !== cardResult.type) {
         throw {
-            type: 'user', message: 'this card cannot be used at this establishment', status: 401
+            type: 'user',
+            message: 'this card cannot be used at this establishment',
+            status: 401,
         }
     }
 }
