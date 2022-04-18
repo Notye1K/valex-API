@@ -34,3 +34,10 @@ export function validatePassword(cardPassword: string, password: string) {
         throw { type: 'user', message: 'incorrect password', status: 401 };
     }
 }
+
+export function validateCVV(cvv: string, securityCode: string) {
+    const isCorrectCVV = bcrypt.compareSync(cvv, securityCode);
+    if (!isCorrectCVV) {
+        throw { type: 'user', message: 'incorrect cvv', status: 401 };
+    }
+}

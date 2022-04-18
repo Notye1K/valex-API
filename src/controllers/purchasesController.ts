@@ -7,3 +7,9 @@ export async function postPurchase(req: Request, res: Response){
 
     res.sendStatus(200)
 }
+
+export async function postOnlinePurchase(req: Request, res: Response){
+    await purchasesService.postOnlinePurchase(req.body)
+
+    res.sendStatus(200)
+}

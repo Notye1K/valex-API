@@ -6,7 +6,7 @@ import * as employeeRepository from '../repositories/employeeRepository.js'
 import * as cardRepository from '../repositories/cardRepository.js'
 import * as rechargeRepository from '../repositories/rechargeRepository.js'
 import { validateCardId, getBalance } from './validateService.js'
-import { validateDate, formatDate, validateBlock, validatePassword as checkPassword } from '../utils/validateUtils.js'
+import { validateDate, formatDate, validateBlock, validatePassword as checkPassword, validateCVV } from '../utils/validateUtils.js'
 
 export async function createCard(apiKey: string, body: any) {
 
@@ -111,13 +111,6 @@ async function validateCard(id: number, cvv: string) {
 function validateActivation(password: string) {
     if (password) {
         throw { type: 'user', message: 'card already active', status: 409 };
-    }
-}
-
-function validateCVV(cvv: string, securityCode: string) {
-    const isCorrectCVV = bcrypt.compareSync(cvv, securityCode);
-    if (!isCorrectCVV) {
-        throw { type: 'user', message: 'incorrect cvv', status: 401 };
     }
 }
 
